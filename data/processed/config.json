@@ -1,0 +1,16 @@
+{
+             "max_chunk_size": 1200,
+	     "extensions": [
+		     ".cpp",
+		     ".cu",
+		     ".cuh",
+		     ".hpp",
+		     ".js",
+		     ".json",
+		     ".md",
+		     ".py",
+		     ".toml",
+		     ".txt",
+		     ""
+	     ]
+}
