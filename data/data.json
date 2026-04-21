@@ -1,0 +1,229 @@
+{
+    "search_results": [
+          {
+            "question_id": "0489281a-086d-4851-92ba-c593525fbe36",
+            "question": "What flag is mandatory to enable automatic function calling in vLLM?",
+            "retrieved_sources": [
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\tool_calling.md",
+                    "first_character_index": 5466,
+                    "last_character_index": 7113
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\online_serving\\openai_chat_completion_tool_calls_with_reasoning.py",
+                    "first_character_index": 3180,
+                    "last_character_index": 4951
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\tool_calling.md",
+                    "first_character_index": 198,
+                    "last_character_index": 2061
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\tool_calling.md",
+                    "first_character_index": 0,
+                    "last_character_index": 198
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\serving\\integrations\\langchain.md",
+                    "first_character_index": 0,
+                    "last_character_index": 788
+                },
+                {
+                    "file_path": "vllm-0.10.1\\vllm\\logger.py",
+                    "first_character_index": 7073,
+                    "last_character_index": 8115
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\online_serving\\openai_chat_completion_tool_calls_with_reasoning.py",
+                    "first_character_index": 0,
+                    "last_character_index": 625
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\reasoning_outputs.md",
+                    "first_character_index": 6486,
+                    "last_character_index": 8175
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\offline_inference\\automatic_prefix_caching.py",
+                    "first_character_index": 0,
+                    "last_character_index": 775
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\tool_calling.md",
+                    "first_character_index": 3184,
+                    "last_character_index": 4942
+                }
+            ]
+        },
+        {
+            "question_id": "b5191cd4-9b74-4211-9e60-6272498deae3",
+            "question": "How do you apply chat templates to prompts in vLLM?",
+            "retrieved_sources": [
+                {
+                    "file_path": "vllm-0.10.1\\docs\\serving\\openai_compatible_server.md",
+                    "first_character_index": 3961,
+                    "last_character_index": 5901
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\getting_started\\quickstart.md",
+                    "first_character_index": 3866,
+                    "last_character_index": 5141
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\models\\generative_models.md",
+                    "first_character_index": 3304,
+                    "last_character_index": 5193
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\tool_calling.md",
+                    "first_character_index": 5466,
+                    "last_character_index": 7113
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\quantization\\gguf.md",
+                    "first_character_index": 1834,
+                    "last_character_index": 3490
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\multimodal_inputs.md",
+                    "first_character_index": 10838,
+                    "last_character_index": 11914
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\online_serving\\openai_chat_completion_with_reasoning_streaming.py",
+                    "first_character_index": 0,
+                    "last_character_index": 1147
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\models\\supported_models.md",
+                    "first_character_index": 42804,
+                    "last_character_index": 44599
+                },
+                {
+                    "file_path": "vllm-0.10.1\\benchmarks\\README.md",
+                    "first_character_index": 5782,
+                    "last_character_index": 7114
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\quantization\\quark.md",
+                    "first_character_index": 6639,
+                    "last_character_index": 8034
+                }
+            ]
+        },
+        {
+            "question_id": "db4f05fe-78bf-402f-b02f-630d0a3959c3",
+            "question": "What is the first step to implement a basic vLLM model?",
+            "retrieved_sources": [
+                {
+                    "file_path": "vllm-0.10.1\\docs\\contributing\\model\\README.md",
+                    "first_character_index": 0,
+                    "last_character_index": 1177
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\contributing\\model\\basic.md",
+                    "first_character_index": 0,
+                    "last_character_index": 643
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\contributing\\model\\multimodal.md",
+                    "first_character_index": 3867,
+                    "last_character_index": 5731
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\offline_inference\\basic\\README.md",
+                    "first_character_index": 0,
+                    "last_character_index": 1948
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\design\\huggingface_integration.md",
+                    "first_character_index": 0,
+                    "last_character_index": 1820
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\contributing\\model\\multimodal.md",
+                    "first_character_index": 169,
+                    "last_character_index": 2048
+                },
+                {
+                    "file_path": "vllm-0.10.1\\tests\\v1\\engine\\test_engine_core.py",
+                    "first_character_index": 1601,
+                    "last_character_index": 3580
+                },
+                {
+                    "file_path": "vllm-0.10.1\\tests\\v1\\engine\\test_engine_core.py",
+                    "first_character_index": 6926,
+                    "last_character_index": 8895
+                },
+                {
+                    "file_path": "vllm-0.10.1\\tests\\v1\\tpu\\test_basic.py",
+                    "first_character_index": 3852,
+                    "last_character_index": 5256
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\models\\generative_models.md",
+                    "first_character_index": 0,
+                    "last_character_index": 944
+                }
+            ]
+        },
+        {
+            "question_id": "4e658668-9e1d-4068-ae99-1f77bab83523",
+            "question": "What flag must be explicitly passed when serving VLM2Vec-Full model in vLLM to run it in embedding mode?",
+            "retrieved_sources": [
+                {
+                    "file_path": "vllm-0.10.1\\docs\\serving\\openai_compatible_server.md",
+                    "first_character_index": 9911,
+                    "last_character_index": 11858
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\models\\supported_models.md",
+                    "first_character_index": 48369,
+                    "last_character_index": 49447
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\serving\\openai_compatible_server.md",
+                    "first_character_index": 11858,
+                    "last_character_index": 13744
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\online_serving\\openai_chat_embedding_client_for_multimodal.py",
+                    "first_character_index": 0,
+                    "last_character_index": 1048
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\sleep_mode.md",
+                    "first_character_index": 1978,
+                    "last_character_index": 3918
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\features\\prompt_embeds.md",
+                    "first_character_index": 0,
+                    "last_character_index": 1750
+                },
+                {
+                    "file_path": "vllm-0.10.1\\vllm\\config\\parallel.py",
+                    "first_character_index": 1069,
+                    "last_character_index": 3048
+                },
+                {
+                    "file_path": "vllm-0.10.1\\docs\\usage\\README.md",
+                    "first_character_index": 0,
+                    "last_character_index": 435
+                },
+                {
+                    "file_path": "vllm-0.10.1\\vllm\\entrypoints\\llm.py",
+                    "first_character_index": 7456,
+                    "last_character_index": 9203
+                },
+                {
+                    "file_path": "vllm-0.10.1\\examples\\online_serving\\openai_chat_embedding_client_for_multimodal.py",
+                    "first_character_index": 2759,
+                    "last_character_index": 3626
+                }
+            ]
+        }
+    ],
+    "k": 10
+}

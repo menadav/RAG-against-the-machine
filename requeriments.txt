@@ -1,0 +1,11 @@
+fire
+pydantic
+flake8
+mypy
+bm25s
+tqdm
+transformers
+torch
+accelerate
+chromadb
+sentence_transformers
