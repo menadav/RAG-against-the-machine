@@ -2295,17 +2295,13 @@ dependencies = [
     { name = "bm25s" },
     { name = "chromadb" },
     { name = "fire" },
+    { name = "flake8" },
+    { name = "mypy" },
     { name = "pydantic" },
     { name = "sentence-transformers" },
     { name = "torch" },
     { name = "tqdm" },
     { name = "transformers" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "flake8" },
-    { name = "mypy" },
 ]
 
 [package.metadata]
@@ -2314,15 +2310,14 @@ requires-dist = [
     { name = "bm25s" },
     { name = "chromadb" },
     { name = "fire" },
-    { name = "flake8", marker = "extra == 'dev'" },
-    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "flake8" },
+    { name = "mypy" },
     { name = "pydantic" },
     { name = "sentence-transformers" },
     { name = "torch" },
     { name = "tqdm" },
     { name = "transformers" },
 ]
-provides-extras = ["dev"]
 
 [[package]]
 name = "referencing"

@@ -82,9 +82,10 @@ class Retrieval:
         top_k_indices = results.flatten()
         final_sources = []
         seen_paths = set()
-        for idx_info in top_k_indices:
-            meta = self.metadata[idx_info['id']]
-            self._add_to_final(final_sources, seen_paths, meta)
+        for idx in top_k_indices:
+            if idx in top_k_indices:
+                meta = self.metadata[idx]
+                self._add_to_final(final_sources, seen_paths, meta)
         for meta in chroma_results['metadatas'][0]:
             self._add_to_final(final_sources, seen_paths, meta)
         return final_sources[:k]

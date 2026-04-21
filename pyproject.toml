@@ -12,16 +12,14 @@ dependencies = [
     "transformers",
     "accelerate",
     "chromadb",
-    "sentence_transformers"
-]
-
-[project.optional-dependencies]
-dev = [
+    "sentence_transformers",
     "flake8",
     "mypy",
 ]
 
 [tool.mypy]
+files = ["src"]
+explicit_package_bases = true
 warn_return_any = true
 warn_unused_ignores = true
 ignore_missing_imports = true

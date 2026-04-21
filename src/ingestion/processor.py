@@ -17,25 +17,22 @@ class DocumentProcessor:
         start = 0
         text_len = len(content)
         while start < text_len:
-            end = start + self.max_chunk_size
-            if end > text_len:
-                end = text_len
-            else:
-                chunk_candidate = content[start:end]
-                separator = self.get_chunks(extension, chunk_candidate)
-                if separator != -1:
-                    end = start + separator
+            end = min(start + self.max_chunk_size, text_len)
+            chunk_candidate = content[start:end]
+            separator = self.get_chunks(extension, chunk_candidate)
+            if separator != -1 and separator > 0:
+                end = start + separator
             chunk_text = content[start:end]
             if end <= start:
-                end = start + self.max_chunk_size
-                if end > text_len:
-                    end = text_len
-            source = MinimalSource(
-                file_path=str(file_path),
-                first_character_index=start,
-                last_character_index=end
-            )
-            yield source, chunk_text
+                end = min(start + self.max_chunk_size, text_len)
+            chunk_text = content[start:end]
+            if len(chunk_text.strip()) > 0:
+                source = MinimalSource(
+                    file_path=str(file_path),
+                    first_character_index=start,
+                    last_character_index=end
+                )
+                yield source, chunk_text
             start = end
 
     def get_chunks(self, extension, chunk_candidate):

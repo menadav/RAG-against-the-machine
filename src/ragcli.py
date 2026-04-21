@@ -56,6 +56,7 @@ class RAGCli:
             print(f"Saved student_search_results to {path_final}")
         except ValueError as e:
             print(e)
+            sys.exit(1)
 
     def answer(self, query: str, k: int = DEFAULT_K):
         self.answer_service = AnswerService(self.llm, self.retrieval)
@@ -85,6 +86,7 @@ class RAGCli:
             print(f"Saved student_search_results_and_answer to {final_name}")
         except ValueError as e:
             print(e)
+            sys.exit(1)
 
     def evaluate(self) -> None:
         pass

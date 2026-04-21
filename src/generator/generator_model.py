@@ -98,7 +98,8 @@ class AnswerService:
             "---------------------\n"
             "Given the context information and not prior knowledge, "
             "answer the query concisely in 1 or 2 sentences max.\n"
-            "If the answer is not in the context, strictly respond with 'I don't know'.\n"
+            "If the answer is not in the context,"
+            " strictly respond with 'I don't know'.\n"
             f"Query: {query}\n"
             "Answer: "
         )
