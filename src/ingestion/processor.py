@@ -28,7 +28,7 @@ class DocumentProcessor:
             chunk_text = content[start:end]
             if len(chunk_text.strip()) > 0:
                 source = MinimalSource(
-                    file_path=str(file_path),
+                    file_path=file_path,
                     first_character_index=start,
                     last_character_index=end
                 )

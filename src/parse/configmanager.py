@@ -107,12 +107,10 @@ class ConfigManager:
 
     def _save_json(
             self, path: str,
-            # Cambiar searh con student
             data: StudentSearchResults | StudentSearchResultsAndAnswer,
             name: str
             ) -> str:
         base_dir = Path(path)
-        print(base_dir)
         if not base_dir.exists():
             base_dir.mkdir(parents=True, exist_ok=True)
         elif not base_dir.is_dir():
@@ -124,4 +122,5 @@ class ConfigManager:
             data.model_dump_json(indent=4),
             encoding="utf-8"
         )
+        print(output_file)
         return str(output_file)

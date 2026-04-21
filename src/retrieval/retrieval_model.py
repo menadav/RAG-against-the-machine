@@ -93,8 +93,10 @@ class Retrieval:
     def _add_to_final(self, final_list, seen_set, meta):
         unique_key = f"{meta['file_path']}_{meta['first_character_index']}"
         if unique_key not in seen_set:
+            raw_path = meta['file_path']
+            clean_path = Path(raw_path).relative_to("vllm-0.10.1").as_posix()
             source = MinimalSource(
-                file_path=meta["file_path"],
+                file_path=clean_path,
                 content=meta.get("content", ""),
                 first_character_index=meta["first_character_index"],
                 last_character_index=meta["last_character_index"]
