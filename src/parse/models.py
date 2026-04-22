@@ -1,6 +1,6 @@
 import sys
 import uuid
-from typing import List, Union
+from typing import List, Union, Optional
 try:
     from pydantic import BaseModel, Field
 except ImportError:
@@ -24,6 +24,8 @@ class MinimalSource(BaseModel):
 class UnansweredQuestion(BaseModel):
     question_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     question: str
+    difficulty: Optional[str] = None
+    is_valid: Optional[bool] = True
 
 
 class AnsweredQuestion(UnansweredQuestion):
@@ -37,7 +39,7 @@ class RagDataset(BaseModel):
 
 class MinimalSearchResults(BaseModel):
     question_id: str
-    question: str
+    question: Optional[str] = None
     retrieved_sources: List[MinimalSource]
 
 

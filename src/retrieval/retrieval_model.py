@@ -71,24 +71,26 @@ class Retrieval:
         if self.retrieval is None:
             self.load()
         query_clean = "".join(
-            char if char.isalnum() or char.isspace() else " "
+            char if char.isalnum() or char.isspace() or char in "_." else " "
             for char in query_tokens.lower()
         )
-        query = query_clean.split()
-        results, _ = self.retrieval.retrieve([query], k=k)
+        query_list = query_clean.split()
+        bm25_indices, scores = self.retrieval.retrieve([query_list], k=k)
         chroma_results = self.collection.query(
-            query_texts=[query_tokens], n_results=k
-            )
-        top_k_indices = results.flatten()
+            query_texts=[query_tokens], n_results=k)
+        top_k_indices = bm25_indices.flatten()
+        bm25_scores = scores.flatten()
         final_sources = []
         seen_paths = set()
-        for idx in top_k_indices:
-            if idx in top_k_indices:
+        for i, idx in enumerate(top_k_indices):
+            if bm25_scores[i] > 1:
                 meta = self.metadata[idx]
                 self._add_to_final(final_sources, seen_paths, meta)
         for meta in chroma_results['metadatas'][0]:
+            if len(final_sources) >= k:
+                break
             self._add_to_final(final_sources, seen_paths, meta)
-        return final_sources[:k]
+        return final_sources
 
     def _add_to_final(self, final_list, seen_set, meta):
         unique_key = f"{meta['file_path']}_{meta['first_character_index']}"

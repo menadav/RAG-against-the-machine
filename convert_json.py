@@ -2,7 +2,7 @@ import json
 from collections import OrderedDict
 
 # 1. Cargamos el archivo
-with open('data/dataset_docs_public.json', 'r') as f:
+with open('data/dataset_docs_public.json', 'r', encoding="utf-8") as f:
     data = json.load(f)
 
 new_search_results = []

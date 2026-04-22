@@ -28,15 +28,13 @@ class IngestionService:
     def _ingest_files(self, max_chunk_size, extensions, path_cp):
         """Generador privado que procesa los archivos físicamente."""
         self.processor.max_chunk_size = max_chunk_size
-        path_base = Path(path_cp).resolve()
+        path_base = Path(path_cp)
         files = [f for f in path_base.rglob("*")
                  if f.is_file() and f.suffix in extensions]
         for fil in tqdm(files, desc="Loading Bm25 ...", unit="files"):
             content = self.processor.read_file(fil)
             if content:
-                rel_path = f"data/raw/{fil.relative_to(path_base.parent)}"
-                print(rel_path)
-                yield from self.processor.splited_file(rel_path, content)
+                yield from self.processor.splited_file(fil.as_posix(), content)
 
     def _save_ingestion_state(
             self, max_chunk_size, extensions, config_path, path_cp):

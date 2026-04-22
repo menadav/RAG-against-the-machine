@@ -3,7 +3,7 @@ from typing import Tuple
 from pydantic import ValidationError
 from pathlib import Path
 from src.parse.models import UnansweredQuestion, StudentSearchResults
-from src.parse.models import StudentSearchResultsAndAnswer
+from src.parse.models import StudentSearchResultsAndAnswer, RagDataset
 from filetype_scanner.allowed_extensions import ALLOWED_EXTENSIONS
 
 
@@ -61,6 +61,17 @@ class ConfigManager:
                     )
         return False
 
+    def load_rag_data(self, path: str):
+        path_base = Path(path)
+        if not path_base.exists():
+            raise ValueError(f"El archivo del dataset no existe: {path}")
+        with open(path_base, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        try:
+            return RagDataset(**data)
+        except Exception as e:
+            raise ValueError(f"Error al validar el dataset con Pydantic: {e}")
+
     def load_search_results(
             self, path: str
             ) -> Tuple[StudentSearchResults, str]:
@@ -77,7 +88,6 @@ class ConfigManager:
 
     def search_data(
             self, data_set_path,
-            check: bool = True
             ) -> Tuple[list[UnansweredQuestion], str]:
         path_base = Path(data_set_path)
         if not path_base.exists():

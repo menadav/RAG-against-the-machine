@@ -9,6 +9,7 @@ from src.retrieval.retrieval_model import Retrieval
 from src.parse.models import MinimalSource
 from src.search.searchmodel import SearchService
 from src.generator.generator_model import AnswerService
+from src.evaluate.func_eval import calculate_recall_at_k
 
 
 class RAGCli:
@@ -88,5 +89,34 @@ class RAGCli:
             print(e)
             sys.exit(1)
 
-    def evaluate(self) -> None:
-        pass
+    def evaluate(
+            self, student_answer_path: str,
+            dataset_path: str,
+            k: int,
+            max_context_length: int
+            ) -> None:
+        try:
+            check = False
+            data, _ = self.config_manager.load_search_results(
+                student_answer_path)
+            data_rag = self.config_manager.load_rag_data(dataset_path)
+            check = True
+            long = len(data_rag.rag_questions)
+            k_levels = sorted(list(set([1, 3, 5, k])))
+            fi = calculate_recall_at_k(
+                data,
+                data_rag,
+                k_values=k_levels,
+                max_context=max_context_length
+            )
+            print(f"Student data is valid: {check}")
+            print(f"Total number of questions: {long}")
+            print("Evaluation Results")
+            print("========================================")
+            for i, k_val in enumerate(k_levels):
+                print(f"Recall@{k_val}: {fi[i]:.2f}")
+        except ValueError as e:
+            print(e)
+            print()
+            print(f"Student data is valid: {check}")
+            sys.exit(1)
