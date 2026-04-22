@@ -120,6 +120,21 @@ class ConfigManager:
             data: StudentSearchResults | StudentSearchResultsAndAnswer,
             name: str
             ) -> str:
+        prefix = "data/raw/vllm-0.10.1/"
+        check = ["data/raw/vllm-0.10.1/", "vllm/vllm/", "vllm/"]
+        for result in data.search_results:
+            for source in result.retrieved_sources:
+                path_str = source.file_path
+                if path_str.startswith(prefix):
+                    continue
+                clean = path_str
+                for bad_prefix in check:
+                    if clean.startswith(bad_prefix):
+                        clean = clean[len(bad_prefix):]
+                if clean.startswith(("docs/", "tests/", "examples/")):
+                    source.file_path = f"{prefix}{clean}"
+                else:
+                    source.file_path = f"{prefix}vllm/{clean}"
         base_dir = Path(path)
         if not base_dir.exists():
             base_dir.mkdir(parents=True, exist_ok=True)
@@ -132,5 +147,4 @@ class ConfigManager:
             data.model_dump_json(indent=4),
             encoding="utf-8"
         )
-        print(output_file)
         return str(output_file)

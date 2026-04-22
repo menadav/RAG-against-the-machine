@@ -1,3 +1,4 @@
+import os
 import bm25s
 import json
 import chromadb
@@ -5,7 +6,6 @@ from chromadb.utils import embedding_functions
 from pathlib import Path
 from src.parse.models import MinimalSource
 from tqdm import tqdm
-import os
 import logging
 
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
@@ -96,7 +96,10 @@ class Retrieval:
         unique_key = f"{meta['file_path']}_{meta['first_character_index']}"
         if unique_key not in seen_set:
             raw_path = meta['file_path']
-            clean_path = Path(raw_path).relative_to("vllm-0.10.1").as_posix()
+            if "vllm-0.10.1/" in raw_path:
+                clean_path = raw_path.split("vllm-0.10.1/")[-1]
+            else:
+                clean_path = os.path.basename(raw_path)
             source = MinimalSource(
                 file_path=clean_path,
                 content=meta.get("content", ""),

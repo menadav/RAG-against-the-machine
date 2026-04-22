@@ -37,4 +37,4 @@ ALLOWED_EXTENSIONS = [
     "",  # archivos sin extensión
 ]
 
-PATH = "/home/dmena-li/M4/RAG/vllm-0.10.1"
+PATH = "/home/dmena-li/M4/RAG/data/raw/vllm-0.10.1"

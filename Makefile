@@ -2,11 +2,6 @@ PYTHON = uv run python
 SRC_DIR = src
 GOINFRE_PATH := /goinfre/$(USER)/rag_project
 
-export XDG_CACHE_HOME := $(GOINFRE_PATH)/.cache
-export UV_CACHE_DIR := $(GOINFRE_PATH)/.cache/uv
-export UV_PROJECT_ENVIRONMENT := $(GOINFRE_PATH)/.venv
-export HF_HOME := $(GOINFRE_PATH)/.cache/huggingface
-
 install:
 	@mkdir -p $(UV_CACHE_DIR)
 	@mkdir -p $(GOINFRE_PATH)
@@ -24,7 +19,7 @@ clean:
 	@rm -rf .mypy_cache
 	@rm -rf .pytest_cache
 	@rm -rf $(GOINFRE_PATH)
-	@find . -type d -name "__pycache__" -exec rm -rf {} + [cite: 7]
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
 
 lint:
 	@uv run flake8 $(SRC_DIR) 
