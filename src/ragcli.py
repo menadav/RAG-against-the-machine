@@ -1,20 +1,20 @@
 import sys
-from typing import List
+from typing import List, Union, Optional
 from src.constant import EXTENSIONS, PATH_CP, CONFIG_PATH, \
     DEFAULT_K, DEFAULT_CHUNK
 from src.parse.configmanager import ConfigManager
 from src.ingestion.processor import DocumentProcessor
 from src.ingestion.ingestservice import IngestionService
 from src.retrieval.retrieval_model import Retrieval
-from src.parse.models import MinimalSource
+from src.parse.models import MinimalSource, StudentSearchResultsAndAnswer
 from src.search.searchmodel import SearchService
 from src.generator.generator_model import AnswerService
 from src.evaluate.func_eval import calculate_recall_at_k
 
 
 class RAGCli:
-    def __init__(self):
-        self.llm = "Qwen/Qwen3-0.6B"
+    def __init__(self) -> None:
+        self.llm: str = "Qwen/Qwen3-0.6B"
         self.config_manager = ConfigManager()
         self.processor = DocumentProcessor(max_chunk_size=DEFAULT_CHUNK)
         self.retrieval = Retrieval()
@@ -24,9 +24,9 @@ class RAGCli:
             retrieval=self.retrieval,
             config_manager=self.config_manager
         )
-        self.answer_service = None
+        self.answer_service: Optional[AnswerService] = None
 
-    def index(self, max_chunk_size=DEFAULT_CHUNK) -> None:
+    def index(self, max_chunk_size: int = DEFAULT_CHUNK) -> None:
         if self.config_manager.check_extensions(EXTENSIONS):
             sys.exit(1)
         if self.config_manager.checker(
@@ -38,13 +38,13 @@ class RAGCli:
             )
 
     def search(self, question: str, k: int = DEFAULT_K) -> List[MinimalSource]:
-        # salida .json
-        return self.retrieval.find_top_k(question, k)
+        return self.retrieval.find_top_k([question], k)
 
     def search_dataset(
             self,
             dataset_path: str,
-            save_directory: str, k: int = DEFAULT_K
+            save_directory: str,
+            k: int = DEFAULT_K
             ) -> None:
         try:
             questions, name = self.config_manager.search_data(dataset_path)
@@ -59,14 +59,16 @@ class RAGCli:
             print(e)
             sys.exit(1)
 
-    def answer(self, query: str, k: int = DEFAULT_K):
+    def answer(
+            self, query: str, k: int = DEFAULT_K
+               ) -> Union[str, StudentSearchResultsAndAnswer]:
         self.answer_service = AnswerService(self.llm, self.retrieval)
         return self.answer_service.generate_answer(query, k)
 
     def answer_dataset(
             self,
-            student_search_results_path,
-            save_directory
+            student_search_results_path: str,
+            save_directory: str
             ) -> None:
         try:
             questions, name = self.config_manager.load_search_results(

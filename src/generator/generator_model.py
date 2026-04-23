@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Optional, Union
 import torch
 from tqdm import tqdm
 from transformers import pipeline
@@ -30,12 +30,16 @@ class AnswerService:
         )
         self.retrieval = retrieval
 
-    def generate_data_answer(self, questions: StudentSearchResults):
+    def generate_data_answer(
+            self,
+            questions: StudentSearchResults
+            ) -> StudentSearchResultsAndAnswer:
         results = []
         for res in tqdm(questions.search_results,
                         desc="Generating answer dataset"):
-            clean_answer = self.generate_answer(
+            res_data = self.generate_answer(
                 res.question, 0, res.retrieved_sources, False)
+            clean_answer: str = str(res_data)
             answer_obj = MinimalAnswer(
                 question_id=res.question_id,
                 question=res.question,
@@ -49,29 +53,51 @@ class AnswerService:
         )
 
     def generate_answer(
-            self, query: str, k: int = 0, sources=None, check: bool = True
-            ) -> str:
+            self,
+            query: str,
+            k: int = 0,
+            sources: Optional[List[MinimalSource]] = None,
+            check: bool = True
+            ) -> Union[str, StudentSearchResultsAndAnswer]:
+        actual_sources: List[MinimalSource] = sources if sources is not None \
+            else []
         if check:
-            sources = self.retrieval.find_top_k(query, k)
-        context = self._build_context(sources)
+            raw_list = self.retrieval.find_top_k([query], k)
+            actual_sources = [
+                MinimalSource(
+                    file_path=item.file_path,
+                    first_character_index=int(item.first_character_index),
+                    last_character_index=int(item.last_character_index)
+                ) for item in raw_list
+            ]
+        else:
+            actual_sources = sources or []
+        context = self._build_context(actual_sources)
         prompt = self._create_prompt(query, context)
+        tokenizer = getattr(self.generator, "tokenizer", None)
+        eos_id = getattr(tokenizer, "eos_token_id", 0) if tokenizer else 0
         result = self.generator(
             prompt,
             max_new_tokens=50,
             do_sample=False,
             repetition_penalty=1.1,
             return_full_text=False,
-            pad_token_id=self.generator.tokenizer.eos_token_id,
-            eos_token_id=self.generator.tokenizer.eos_token_id,
+            pad_token_id=eos_id,
+            eos_token_id=eos_id,
         )
-        raw_answer = result[0]['generated_text'].strip()
-        clean_answer = raw_answer.split('\n')[0].replace("Answer:", "").strip()
+        raw_answer: str = result[0]['generated_text'].strip()
+        clean_answer: str = (
+            raw_answer.split('\n')[0].replace("Answer:", "").strip()
+        )
         if len(clean_answer) < 3 or\
                 not any(char.isalnum() for char in clean_answer):
             clean_answer = "I don't know"
         if not check:
             return clean_answer
-        return self.get_structured_response(query, clean_answer, sources, k)
+        final_prompt = self.get_structured_response(
+            query, clean_answer, actual_sources, k
+            )
+        return final_prompt
 
     def _build_context(self, sources: List[MinimalSource]) -> str:
         context_parts = []

@@ -1,15 +1,16 @@
+from typing import Any, List, Dict
 from copy import copy
 
 
 def calculate_recall_at_k(
-    student_results,
-    ground_truth,
-    k_values: list[int],
+    student_results: Any,
+    ground_truth: Any,
+    k_values: List[int],
     max_context: int
-):
-    gt_map = {q.question_id: getattr(q, 'sources', [])
-              for q in ground_truth.rag_questions}
-    recalls_per_k = {k: [] for k in k_values}
+) -> list[float]:
+    gt_map: Dict[str, Any] = {q.question_id: getattr(q, 'sources', [])
+                              for q in ground_truth.rag_questions}
+    recalls_per_k: Dict[int, List[float]] = {k: [] for k in k_values}
     for student_res in student_results.search_results:
         q_id = student_res.question_id
         if q_id not in gt_map:

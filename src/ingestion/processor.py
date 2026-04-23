@@ -1,18 +1,24 @@
 from pathlib import Path
+from typing import List, Tuple, Generator
 from src.parse.models import MinimalSource
 
 
 class DocumentProcessor:
-    def __init__(self, max_chunk_size):
+    def __init__(self,
+                 max_chunk_size: int) -> None:
         self.max_chunk_size = max_chunk_size
 
-    def read_file(self, file_path: Path):
+    def read_file(self, file_path: Path) -> str:
         try:
             return file_path.read_text(encoding='utf-8')
         except Exception:
-            return None
+            return ""
 
-    def splited_file(self, file_path, content):
+    def splited_file(
+            self,
+            file_path: str,
+            content: str
+            ) -> Generator[Tuple[MinimalSource, str], None, None]:
         path_obj = Path(file_path)
         extension = path_obj.suffix
         folder = path_obj.parent.name
@@ -46,7 +52,10 @@ class DocumentProcessor:
                 yield source, searchable_text
             start = end
 
-    def get_chunks(self, extension, chunk_candidate):
+    def get_chunks(self,
+                   extension: str,
+                   chunk_candidate: str
+                   ) -> Tuple[int, str]:
         if extension == '.py':
             separator = self._find_last_separator(
                 chunk_candidate, ["\ndef ", "\nclass "]
@@ -78,7 +87,11 @@ class DocumentProcessor:
                 )
             return separator, "low"
 
-    def _find_last_separator(self, text, separators):
+    def _find_last_separator(
+            self,
+            text: str,
+            separators: List[str]
+            ) -> int:
         for sep in separators:
             idx = text.rfind(sep)
             if idx != -1:

@@ -1,10 +1,12 @@
 import json
-import os
+
 
 def fix_json_final(student_path, gt_path):
     with open(gt_path, 'r') as f:
         gt_data = json.load(f)
-        questions_map = {q['question_id']: q['question'] for q in gt_data.get('rag_questions', [])}
+        questions_map = {q['question_id']: q['question'] for q in gt_data.get(
+            'rag_questions', []
+            )}
     with open(student_path, 'r') as f:
         raw_data = json.load(f)
     if isinstance(raw_data, str):
@@ -16,7 +18,12 @@ def fix_json_final(student_path, gt_path):
     if not isinstance(current_results, list):
         current_results = []
     for q_id, q_text in questions_map.items():
-        existing = next((item for item in current_results if item.get("question_id") == q_id), None)
+        existing = next(
+            (
+                item for item in current_results
+                if item.get("question_id") == q_id
+                ), None
+            )
         if existing:
             existing["question_str"] = q_text
             existing.setdefault("retrieved_sources", [])
@@ -32,4 +39,8 @@ def fix_json_final(student_path, gt_path):
         json.dump(student_data, f, indent=4)
     print("✅ JSON normalizado y corregido.")
 
-fix_json_final("data/output/search_results/dataset_code_public.json", "datasets/public/AnsweredQuestions/dataset_code_public.json")
+
+fix_json_final(
+    "data/output/search_results/dataset_code_public.json",
+    "datasets/public/AnsweredQuestions/dataset_code_public.json"
+    )

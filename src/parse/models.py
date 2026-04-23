@@ -1,6 +1,6 @@
 import sys
 import uuid
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Sequence
 try:
     from pydantic import BaseModel, Field
 except ImportError:
@@ -48,9 +48,9 @@ class MinimalAnswer(MinimalSearchResults):
 
 
 class StudentSearchResults(BaseModel):
-    search_results: List[MinimalSearchResults]
+    search_results: Sequence[MinimalSearchResults]
     k: int
 
 
 class StudentSearchResultsAndAnswer(StudentSearchResults):
-    search_results: List[MinimalAnswer]
+    search_results: Sequence[MinimalAnswer]

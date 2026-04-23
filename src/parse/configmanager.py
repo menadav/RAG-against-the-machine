@@ -1,5 +1,5 @@
 import json
-from typing import Tuple
+from typing import Tuple, Union, Any, List
 from pydantic import ValidationError
 from pathlib import Path
 from src.parse.models import UnansweredQuestion, StudentSearchResults
@@ -9,7 +9,11 @@ from filetype_scanner.allowed_extensions import ALLOWED_EXTENSIONS
 
 class ConfigManager:
     def checker(
-            self, max_chunk_size, config_path, extensions, path_cp
+            self,
+            max_chunk_size: int,
+            config_path: str,
+            extensions: List[str],
+            path_cp: str
             ) -> bool:
         if 0 < max_chunk_size <= 2000:
             pass
@@ -26,11 +30,14 @@ class ConfigManager:
                             ) == sorted(extensions)
                         if same_extensions:
                             if config.get("path") == path_cp:
-                                file, time = self.get_repo_status(
+                                _, time = self.get_repo_status(
                                     path_cp, extensions
                                     )
                                 last_time = config.get("last_modif")
-                                if float(last_time) == float(time):
+                                if last_time is not None and \
+                                        abs(
+                                            float(last_time) - float(time)
+                                            ) < 0.001:
                                     return True
                             else:
                                 raise ValueError("[WARNING] Diferrent path.\n")
@@ -39,8 +46,10 @@ class ConfigManager:
         return False
 
     def get_repo_status(
-            self, path_base, extension
-            ):
+            self,
+            path_base: str,
+            extension: list[str]
+            ) -> Tuple[int, float]:
         files = [f for f in Path(
             path_base
             ).rglob("*") if f.is_file() and f.suffix in extension]
@@ -50,25 +59,28 @@ class ConfigManager:
         return len(files), last_modified
 
     def check_extensions(self, extension: list[str]) -> bool:
-        if extension == []:
+        if not extension:
             raise ValueError("[WARNING] You need any extensio\n")
         for x in extension:
-            if x in ALLOWED_EXTENSIONS:
-                pass
-            else:
-                raise ValueError(
+            if x not in ALLOWED_EXTENSIONS:
+                print(
                     "[WARNING] The extension no is in the list.\n"
                     )
+                return True
         return False
 
-    def load_rag_data(self, path: str):
+    def load_rag_data(self, path: str) -> RagDataset:
         path_base = Path(path)
         if not path_base.exists():
             raise ValueError(f"El archivo del dataset no existe: {path}")
         with open(path_base, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+            data: Any = json.load(f)
         try:
-            return RagDataset(**data)
+            if isinstance(data, dict):
+                return RagDataset(**data)
+            if isinstance(data, list):
+                return RagDataset(rag_questions=data)
+            raise ValueError(f"Formato de JSON inesperado: {type(data)}")
         except Exception as e:
             raise ValueError(f"Error al validar el dataset con Pydantic: {e}")
 
@@ -87,7 +99,8 @@ class ConfigManager:
             raise ValueError(f"Error de validación: {e}")
 
     def search_data(
-            self, data_set_path,
+            self,
+            data_set_path: str
             ) -> Tuple[list[UnansweredQuestion], str]:
         path_base = Path(data_set_path)
         if not path_base.exists():
@@ -101,8 +114,8 @@ class ConfigManager:
             else:
                 data = full_data
             if not isinstance(data, list):
-                return []
-            validate_questions = []
+                return [], ""
+            validate_questions: List[UnansweredQuestion] = []
             for item in data:
                 try:
                     validate_obj = UnansweredQuestion(**item)
@@ -117,7 +130,7 @@ class ConfigManager:
 
     def _save_json(
             self, path: str,
-            data: StudentSearchResults | StudentSearchResultsAndAnswer,
+            data: Union[StudentSearchResults | StudentSearchResultsAndAnswer],
             name: str
             ) -> str:
         prefix = "data/raw/vllm-0.10.1/"

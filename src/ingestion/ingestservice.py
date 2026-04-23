@@ -1,18 +1,30 @@
 from pathlib import Path
+from typing import Any, List, Generator, Tuple
 from tqdm import tqdm
 from src.parse.models import IngestConfig
+from src.retrieval.retrieval_model import Retrieval
+from src.ingestion.processor import DocumentProcessor
+from src.parse.configmanager import ConfigManager
 
 
 class IngestionService:
-    def __init__(self, processor, retrieval, config_manager):
+    def __init__(self,
+                 processor: DocumentProcessor,
+                 retrieval: Retrieval,
+                 config_manager: ConfigManager
+                 ) -> None:
         self.processor = processor
         self.retrieval = retrieval
         self.config_manager = config_manager
 
-    def run_pipeline(self, max_chunk_size, extensions, path_cp, config_path):
+    def run_pipeline(self,
+                     max_chunk_size: int,
+                     extensions: List[str],
+                     path_cp: str,
+                     config_path: str) -> None:
         """Método principal que orquesta la ingesta completa."""
-        all_chunks_text = []
-        all_sources = []
+        all_chunks_text: List[str] = []
+        all_sources: List[dict[str, Any]] = []
         for source, text in self._ingest_files(
                 max_chunk_size, extensions, path_cp):
             all_chunks_text.append(text)
@@ -25,7 +37,11 @@ class IngestionService:
             max_chunk_size, extensions, config_path, path_cp)
         print("Ingestion complete! Indices saved under data/processed/")
 
-    def _ingest_files(self, max_chunk_size, extensions, path_cp):
+    def _ingest_files(self,
+                      max_chunk_size: int,
+                      extensions: List[str],
+                      path_cp: str
+                      ) -> Generator[Tuple[Any, str], None, None]:
         """Generador privado que procesa los archivos físicamente."""
         self.processor.max_chunk_size = max_chunk_size
         path_base = Path(path_cp)
@@ -37,7 +53,12 @@ class IngestionService:
                 yield from self.processor.splited_file(fil.as_posix(), content)
 
     def _save_ingestion_state(
-            self, max_chunk_size, extensions, config_path, path_cp):
+            self,
+            max_chunk_size: int,
+            extensions: List[str],
+            config_path: str,
+            path_cp: str
+            ) -> None:
         """Guarda el archivo JSON para evitar re-procesar en el futuro."""
         config_file = Path(config_path)
         config_file.parent.mkdir(parents=True, exist_ok=True)
