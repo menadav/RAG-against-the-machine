@@ -76,7 +76,7 @@ class Retrieval:
                 clean_metas.append(clean_meta)
             self.collection.add(
                 documents=batch_texts,
-                metadatas=clean_meta,
+                metadatas=clean_metas,
                 ids=batch_ids
             )
 

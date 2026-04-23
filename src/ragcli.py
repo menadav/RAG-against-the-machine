@@ -27,18 +27,26 @@ class RAGCli:
         self.answer_service: Optional[AnswerService] = None
 
     def index(self, max_chunk_size: int = DEFAULT_CHUNK) -> None:
-        if self.config_manager.check_extensions(EXTENSIONS):
+        try:
+            if self.config_manager.check_extensions(EXTENSIONS):
+                sys.exit(1)
+            if self.config_manager.checker(
+                    max_chunk_size, CONFIG_PATH, EXTENSIONS, PATH_CP):
+                return
+            else:
+                self.ingestion_service.run_pipeline(
+                    max_chunk_size, EXTENSIONS, PATH_CP, CONFIG_PATH
+                )
+        except TypeError:
+            print("[WARNING] Incorrect Flag")
             sys.exit(1)
-        if self.config_manager.checker(
-                max_chunk_size, CONFIG_PATH, EXTENSIONS, PATH_CP):
-            return
-        else:
-            self.ingestion_service.run_pipeline(
-                max_chunk_size, EXTENSIONS, PATH_CP, CONFIG_PATH
-            )
 
     def search(self, question: str, k: int = DEFAULT_K) -> List[MinimalSource]:
-        return self.retrieval.find_top_k([question], k)
+        try:
+            return self.retrieval.find_top_k([question], k)
+        except TypeError:
+            print("[WARNING] Incorrect Flag")
+            sys.exit(1)
 
     def search_dataset(
             self,
@@ -58,12 +66,19 @@ class RAGCli:
         except ValueError as e:
             print(e)
             sys.exit(1)
+        except TypeError:
+            print("[WARNING] Incorrect Flag")
+            sys.exit(1)
 
     def answer(
             self, query: str, k: int = DEFAULT_K
                ) -> Union[str, StudentSearchResultsAndAnswer]:
-        self.answer_service = AnswerService(self.llm, self.retrieval)
-        return self.answer_service.generate_answer(query, k)
+        try:
+            self.answer_service = AnswerService(self.llm, self.retrieval)
+            return self.answer_service.generate_answer(query, k)
+        except TypeError:
+            print("[WARNING] Incorrect Flag")
+            sys.exit(1)
 
     def answer_dataset(
             self,
@@ -89,6 +104,9 @@ class RAGCli:
             print(f"Saved student_search_results_and_answer to {final_name}")
         except ValueError as e:
             print(e)
+            sys.exit(1)
+        except TypeError:
+            print("[WARNING] Incorrect Flag")
             sys.exit(1)
 
     def evaluate(
@@ -121,4 +139,7 @@ class RAGCli:
             print(e)
             print()
             print(f"Student data is valid: {check}")
+            sys.exit(1)
+        except TypeError:
+            print("[WARNING] Incorrect Flag")
             sys.exit(1)
