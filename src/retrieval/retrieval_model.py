@@ -2,7 +2,7 @@ import os
 import bm25s
 import json
 import chromadb
-from typing import Any, List, Dict, cast
+from typing import Any, List, Dict, cast, Set
 from chromadb.api.types import EmbeddingFunction
 from chromadb.utils import embedding_functions
 from pathlib import Path
@@ -65,7 +65,7 @@ class Retrieval:
             batch_texts = all_chunks_text[i:end_idx]
             batch_metas = all_sources[i:end_idx]
             batch_ids = [str(j) for j in range(i, end_idx)]
-            clean_metas = []
+            clean_metas: List[Dict[str, Any]] = []
             for meta in batch_metas:
                 clean_meta = {
                     k: (v if isinstance(v, (
@@ -76,7 +76,7 @@ class Retrieval:
                 clean_metas.append(clean_meta)
             self.collection.add(
                 documents=batch_texts,
-                metadatas=clean_metas,
+                metadatas=cast(Any, clean_metas),
                 ids=batch_ids
             )
 
@@ -87,10 +87,12 @@ class Retrieval:
         with open(self.metadata_path, "r") as f:
             self.metadata = json.load(f)
 
-    def find_top_k(self, query_tokens: str, k: int):
+    def find_top_k(self,
+                   query_tokens: str,
+                   k: int
+                   ) -> List[MinimalSource]:
         if self.retrieval is None:
             self.load()
-        # 1. Limpieza de query consistente
         query_clean = "".join(
             char if char.isalnum() or char.isspace() or char in "_." else " "
             for char in query_tokens.lower()
@@ -104,19 +106,24 @@ class Retrieval:
         for idx, score in zip(bm25_indices.flatten(), scores.flatten()):
             if score > 0:
                 candidatos.append((score, self.metadata[idx]))
-        if chroma_results.get("metadatas"):
-            for meta in chroma_results["metadatas"][0]:
+        raw_metadatas = chroma_results.get("metadatas")
+        if raw_metadatas is not None and isinstance(raw_metadatas, list):
+            for meta in raw_metadatas[0]:
                 candidatos.append((0.5, meta))
         candidatos.sort(key=lambda x: x[0], reverse=True)
-        final_sources = []
-        seen_paths = set()
+        final_sources: List[MinimalSource] = []
+        seen_paths: Set[str] = set()
         for _, meta in candidatos:
             if len(final_sources) >= k:
                 break
             self._add_to_final(final_sources, seen_paths, meta)
         return final_sources
 
-    def _add_to_final(self, final_list, seen_set, meta):
+    def _add_to_final(self,
+                      final_list: List[MinimalSource],
+                      seen_set: Set[str],
+                      meta: Dict[str, Any]
+                      ) -> None:
         full_path = meta['file_path']
         unique_key = f"{full_path}_{meta['first_character_index']}"
         if unique_key not in seen_set:

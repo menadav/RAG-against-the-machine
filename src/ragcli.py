@@ -1,12 +1,11 @@
 import sys
-from typing import List, Union, Optional
+from typing import Optional
 from src.constant import EXTENSIONS, PATH_CP, CONFIG_PATH, \
-    DEFAULT_K, DEFAULT_CHUNK
+    DEFAULT_K, DEFAULT_CHUNK, LLM
 from src.parse.configmanager import ConfigManager
 from src.ingestion.processor import DocumentProcessor
 from src.ingestion.ingestservice import IngestionService
 from src.retrieval.retrieval_model import Retrieval
-from src.parse.models import MinimalSource, StudentSearchResultsAndAnswer
 from src.search.searchmodel import SearchService
 from src.generator.generator_model import AnswerService
 from src.evaluate.func_eval import calculate_recall_at_k
@@ -14,7 +13,7 @@ from src.evaluate.func_eval import calculate_recall_at_k
 
 class RAGCli:
     def __init__(self) -> None:
-        self.llm: str = "Qwen/Qwen3-0.6B"
+        self.llm: str = LLM
         self.config_manager = ConfigManager()
         self.processor = DocumentProcessor(max_chunk_size=DEFAULT_CHUNK)
         self.retrieval = Retrieval()
@@ -37,13 +36,13 @@ class RAGCli:
                 self.ingestion_service.run_pipeline(
                     max_chunk_size, EXTENSIONS, PATH_CP, CONFIG_PATH
                 )
-        except TypeError:
+        except ValueError:
             print("[WARNING] Incorrect Flag", file=sys.stderr)
             sys.exit(1)
 
-    def search(self, question: str, k: int = DEFAULT_K) -> List[MinimalSource]:
+    def search(self, question: str, k: int = DEFAULT_K) -> None:
         try:
-            return self.retrieval.find_top_k([question], k)
+            self.retrieval.find_top_k(question, k)
         except ValueError:
             print("[WARNING] Incorrect Value", file=sys.stderr)
             sys.exit(1)
@@ -62,22 +61,25 @@ class RAGCli:
             final_output = self.search_service.format_output(results, k)
             path_final = self.config_manager._save_json(
                 save_directory, final_output, name)
-            print(f"Saved student_search_results to {path_final}")
+            print(
+                f"Saved student_search_results to {path_final}",
+                file=sys.stderr
+                )
         except ValueError as e:
             print(e)
             sys.exit(1)
         except TypeError:
-            print("[WARNING] Incorrect Flag")
+            print("[WARNING] Incorrect Flag", file=sys.stderr)
             sys.exit(1)
 
     def answer(
             self, query: str, k: int = DEFAULT_K
-               ) -> Union[str, StudentSearchResultsAndAnswer]:
+               ) -> None:
         try:
             self.answer_service = AnswerService(self.llm, self.retrieval)
-            return self.answer_service.generate_answer(query, k)
-        except TypeError:
-            print("[WARNING] Incorrect Flag")
+            self.answer_service.generate_answer(query, k)
+        except ValueError:
+            print("[WARNING] Incorrect Flag", file=sys.stderr)
             sys.exit(1)
 
     def answer_dataset(
@@ -106,7 +108,7 @@ class RAGCli:
             print(e)
             sys.exit(1)
         except TypeError:
-            print("[WARNING] Incorrect Flag")
+            print("[WARNING] Incorrect Flag", file=sys.stderr)
             sys.exit(1)
 
     def evaluate(

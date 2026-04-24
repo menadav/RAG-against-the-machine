@@ -62,7 +62,8 @@ class AnswerService:
         actual_sources: List[MinimalSource] = sources if sources is not None \
             else []
         if check:
-            raw_list = self.retrieval.find_top_k([query], k)
+            query_str = " ".join(query)
+            raw_list = self.retrieval.find_top_k(query_str, k)
             actual_sources = [
                 MinimalSource(
                     file_path=item.file_path,

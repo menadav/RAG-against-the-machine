@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Generator, Any, Tuple
 from tqdm import tqdm
 from src.parse.models import IngestConfig
 from src.retrieval.retrieval_model import Retrieval
@@ -17,7 +17,12 @@ class IngestionService:
         self.retrieval = retrieval
         self.config_manager = config_manager
 
-    def run_pipeline(self, max_chunk_size, extensions, path_cp, config_path):
+    def run_pipeline(self,
+                     max_chunk_size: int,
+                     extensions: List[str],
+                     path_cp: str,
+                     config_path: str
+                     ) -> None:
         all_chunks_text = []
         all_sources = []
         for source, text in self._ingest_files(
@@ -32,7 +37,11 @@ class IngestionService:
             max_chunk_size, extensions, config_path, path_cp)
         print("Ingestion complete! Indices saved under data/processed/")
 
-    def _ingest_files(self, max_chunk_size, extensions, path_cp):
+    def _ingest_files(self,
+                      max_chunk_size: int,
+                      extensions: List[str],
+                      path_cp: str
+                      ) -> Generator[Tuple[Any, str], None, None]:
         self.processor.max_chunk_size = max_chunk_size
         path_base = Path(path_cp)
         files = [f for f in path_base.rglob("*")
