@@ -38,14 +38,14 @@ class RAGCli:
                     max_chunk_size, EXTENSIONS, PATH_CP, CONFIG_PATH
                 )
         except TypeError:
-            print("[WARNING] Incorrect Flag")
+            print("[WARNING] Incorrect Flag", file=sys.stderr)
             sys.exit(1)
 
     def search(self, question: str, k: int = DEFAULT_K) -> List[MinimalSource]:
         try:
             return self.retrieval.find_top_k([question], k)
-        except TypeError:
-            print("[WARNING] Incorrect Flag")
+        except ValueError:
+            print("[WARNING] Incorrect Value", file=sys.stderr)
             sys.exit(1)
 
     def search_dataset(
@@ -136,10 +136,11 @@ class RAGCli:
             for i, k_val in enumerate(k_levels):
                 print(f"Recall@{k_val}: {fi[i]:.2f}")
         except ValueError as e:
-            print(e)
-            print()
-            print(f"Student data is valid: {check}")
-            sys.exit(1)
-        except TypeError:
-            print("[WARNING] Incorrect Flag")
+            if e:
+                print(
+                    f"{e}\n"
+                    f"\nStudent data is valid: {check}", file=sys.stderr
+                    )
+            else:
+                print("[ERROR] Incorrect Value", file=sys.stderr)
             sys.exit(1)

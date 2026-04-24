@@ -87,60 +87,43 @@ class Retrieval:
         with open(self.metadata_path, "r") as f:
             self.metadata = json.load(f)
 
-    def find_top_k(
-            self,
-            query_tokens: list,
-            k: int
-            ) -> list[MinimalSource]:
+    def find_top_k(self, query_tokens: str, k: int):
         if self.retrieval is None:
             self.load()
-        query_str = " ".join(query_tokens)
-        query_clean = " ".join(
+        # 1. Limpieza de query consistente
+        query_clean = "".join(
             char if char.isalnum() or char.isspace() or char in "_." else " "
-            for char in query_str.lower()
+            for char in query_tokens.lower()
         )
         query_list = query_clean.split()
         bm25_indices, scores = self.retrieval.retrieve([query_list], k=k)
-        query_str = " ".join(query_tokens)
         chroma_results = self.collection.query(
-            query_texts=[query_str], n_results=k)
-        top_k_indices = bm25_indices.flatten()
-        bm25_scores = scores.flatten()
-        final_sources: list[MinimalSource] = []
-        seen_paths: set[str] = set()
-        for i, idx in enumerate(top_k_indices):
-            if bm25_scores[i] > 1:
-                meta = self.metadata[idx]
-                self._add_to_final(final_sources, seen_paths, meta)
-        raw_metadatas = chroma_results.get("metadatas")
-        if isinstance(raw_metadatas, list) and len(raw_metadatas) > 0:
-            metadatas_list = raw_metadatas[0]
-            if isinstance(metadatas_list, list):
-                for meta in metadatas_list:
-                    if len(final_sources) >= k:
-                        break
-                    if isinstance(meta, dict):
-                        self._add_to_final(final_sources, seen_paths, meta)
+            query_texts=[query_tokens], n_results=k
+            )
+        candidatos = []
+        for idx, score in zip(bm25_indices.flatten(), scores.flatten()):
+            if score > 0:
+                candidatos.append((score, self.metadata[idx]))
+        if chroma_results.get("metadatas"):
+            for meta in chroma_results["metadatas"][0]:
+                candidatos.append((0.5, meta))
+        candidatos.sort(key=lambda x: x[0], reverse=True)
+        final_sources = []
+        seen_paths = set()
+        for _, meta in candidatos:
+            if len(final_sources) >= k:
+                break
+            self._add_to_final(final_sources, seen_paths, meta)
         return final_sources
 
-    def _add_to_final(
-            self,
-            final_list: List[MinimalSource],
-            seen_set: set[str],
-            meta: dict[str, Any]
-            ) -> None:
-        f_path = str(meta.get("file_path", ""))
-        f_idx = int(meta.get("first_character_index", 0))
-        l_idx = int(meta.get("last_character_index", 0))
-        unique_key = f"{f_path}_{f_idx}"
+    def _add_to_final(self, final_list, seen_set, meta):
+        full_path = meta['file_path']
+        unique_key = f"{full_path}_{meta['first_character_index']}"
         if unique_key not in seen_set:
-            clean_path = f_path.split("vllm-0.10.1/")[-1] \
-                if "vllm-0.10.1/" in f_path \
-                else os.path.basename(f_path)
             source = MinimalSource(
-                file_path=clean_path,
-                first_character_index=f_idx,
-                last_character_index=l_idx
+                file_path=full_path,
+                first_character_index=int(meta["first_character_index"]),
+                last_character_index=int(meta["last_character_index"])
             )
             final_list.append(source)
             seen_set.add(unique_key)

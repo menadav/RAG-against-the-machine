@@ -1,6 +1,6 @@
 import sys
 import uuid
-from typing import List, Union, Optional, Sequence
+from typing import List, Union, Optional
 try:
     from pydantic import BaseModel, Field
 except ImportError:
@@ -39,7 +39,7 @@ class RagDataset(BaseModel):
 
 class MinimalSearchResults(BaseModel):
     question_id: str
-    question: Optional[str] = None
+    question_str: Optional[str] = Field(None, alias="question")
     retrieved_sources: List[MinimalSource]
 
 
@@ -48,9 +48,9 @@ class MinimalAnswer(MinimalSearchResults):
 
 
 class StudentSearchResults(BaseModel):
-    search_results: Sequence[MinimalSearchResults]
+    search_results: List[MinimalSearchResults]
     k: int
 
 
 class StudentSearchResultsAndAnswer(StudentSearchResults):
-    search_results: Sequence[MinimalAnswer]
+    search_results: List[MinimalAnswer]

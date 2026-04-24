@@ -134,30 +134,16 @@ class ConfigManager:
             name: str
             ) -> str:
         prefix = "data/raw/vllm-0.10.1/"
-        check = ["data/raw/vllm-0.10.1/", "vllm/vllm/", "vllm/"]
         for result in data.search_results:
             for source in result.retrieved_sources:
-                path_str = source.file_path
-                if path_str.startswith(prefix):
-                    continue
-                clean = path_str
-                for bad_prefix in check:
-                    if clean.startswith(bad_prefix):
-                        clean = clean[len(bad_prefix):]
-                if clean.startswith(("docs/", "tests/", "examples/")):
-                    source.file_path = f"{prefix}{clean}"
-                else:
-                    source.file_path = f"{prefix}vllm/{clean}"
+                # Si ya tiene el prefijo, no lo toques
+                if not source.file_path.startswith(prefix):
+                    # Solo añadimos el prefijo si no está ya
+                    source.file_path = f"{prefix}{source.file_path}"
         base_dir = Path(path)
-        if not base_dir.exists():
-            base_dir.mkdir(parents=True, exist_ok=True)
-        elif not base_dir.is_dir():
-            base_dir.unlink()
-            base_dir.mkdir(parents=True, exist_ok=True)
+        base_dir.mkdir(parents=True, exist_ok=True)
         output_file = base_dir / name
-        output_file.parent.mkdir(parents=True, exist_ok=True)
         output_file.write_text(
-            data.model_dump_json(indent=4),
-            encoding="utf-8"
-        )
+            data.model_dump_json(indent=4), encoding="utf-8"
+            )
         return str(output_file)

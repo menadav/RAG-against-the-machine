@@ -21,14 +21,6 @@ class DocumentProcessor:
             ) -> Generator[Tuple[MinimalSource, str], None, None]:
         path_obj = Path(file_path)
         extension = path_obj.suffix
-        folder = path_obj.parent.name
-        relative_path = str(file_path).replace("\\", "/")
-        context_prefix = (
-            f"FILE: {folder} {folder}"
-            f"SOURCE: {relative_path}"
-            f"CONTEXT: {path_obj.parent.name}\n"
-            "---\n"
-            )
         start = 0
         text_len = len(content)
         while start < text_len:
@@ -43,49 +35,44 @@ class DocumentProcessor:
                     end = start + separator
             chunk_text = content[start:end]
             if len(chunk_text.strip()) > 0:
-                searchable_text = context_prefix + chunk_text
                 source = MinimalSource(
                     file_path=file_path,
                     first_character_index=start,
                     last_character_index=end
                 )
-                yield source, searchable_text
+                yield source, chunk_text
             start = end
 
-    def get_chunks(self,
-                   extension: str,
-                   chunk_candidate: str
-                   ) -> Tuple[int, str]:
-        if extension == '.py':
+    def get_chunks(
+            self, extension: str,
+            chunk_candidate: str
+            ) -> Tuple[int, str]:
+        ext = extension.lower()
+        if ext == '.py':
             separator = self._find_last_separator(
                 chunk_candidate, ["\ndef ", "\nclass "]
                 )
             if separator != -1:
                 return separator, "high"
-            separator = self._find_last_separator(
+            return self._find_last_separator(
                 chunk_candidate, ["\n\n", "\n"]
-                )
-            return separator, "low"
-        elif extension == '.md':
+                ), "low"
+        elif ext == '.md':
             separator = self._find_last_separator(
-                chunk_candidate, ["\n#", "\n##", "\n###", "\n####"]
+                chunk_candidate, ["\n#", "\n##", "\n###"]
                 )
             if separator != -1:
                 return separator, "high"
-            separator = self._find_last_separator(
-                chunk_candidate, ["\n", "\n\n"]
-                )
-            return separator, "low"
+            return self._find_last_separator(
+                chunk_candidate, ["\n\n", "\n"]
+                ), "low"
         else:
-            separator = self._find_last_separator(
-                chunk_candidate, ["\n\n"]
-                )
+            separator = self._find_last_separator(chunk_candidate, ["\n\n"])
             if separator != -1:
                 return separator, "high"
-            separator = self._find_last_separator(
-                chunk_candidate, ["\n", ". "]
-                )
-            return separator, "low"
+            return self._find_last_separator(
+                chunk_candidate, ["\n", "; ", ". "]
+                ), "low"
 
     def _find_last_separator(
             self,

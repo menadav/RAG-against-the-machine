@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List, Generator, Tuple
+from typing import List
 from tqdm import tqdm
 from src.parse.models import IngestConfig
 from src.retrieval.retrieval_model import Retrieval
@@ -17,14 +17,9 @@ class IngestionService:
         self.retrieval = retrieval
         self.config_manager = config_manager
 
-    def run_pipeline(self,
-                     max_chunk_size: int,
-                     extensions: List[str],
-                     path_cp: str,
-                     config_path: str) -> None:
-        """Método principal que orquesta la ingesta completa."""
-        all_chunks_text: List[str] = []
-        all_sources: List[dict[str, Any]] = []
+    def run_pipeline(self, max_chunk_size, extensions, path_cp, config_path):
+        all_chunks_text = []
+        all_sources = []
         for source, text in self._ingest_files(
                 max_chunk_size, extensions, path_cp):
             all_chunks_text.append(text)
@@ -37,12 +32,7 @@ class IngestionService:
             max_chunk_size, extensions, config_path, path_cp)
         print("Ingestion complete! Indices saved under data/processed/")
 
-    def _ingest_files(self,
-                      max_chunk_size: int,
-                      extensions: List[str],
-                      path_cp: str
-                      ) -> Generator[Tuple[Any, str], None, None]:
-        """Generador privado que procesa los archivos físicamente."""
+    def _ingest_files(self, max_chunk_size, extensions, path_cp):
         self.processor.max_chunk_size = max_chunk_size
         path_base = Path(path_cp)
         files = [f for f in path_base.rglob("*")
@@ -59,7 +49,6 @@ class IngestionService:
             config_path: str,
             path_cp: str
             ) -> None:
-        """Guarda el archivo JSON para evitar re-procesar en el futuro."""
         config_file = Path(config_path)
         config_file.parent.mkdir(parents=True, exist_ok=True)
         _, check_time = self.config_manager.get_repo_status(
