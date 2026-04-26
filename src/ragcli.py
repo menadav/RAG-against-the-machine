@@ -42,6 +42,8 @@ class RAGCli:
 
     def search(self, question: str, k: int = DEFAULT_K) -> None:
         try:
+            if not self.config_manager.checker_k(k):
+                sys.stderr(1)
             self.retrieval.find_top_k(question, k)
         except ValueError:
             print("[WARNING] Incorrect Value", file=sys.stderr)
@@ -54,6 +56,8 @@ class RAGCli:
             k: int = DEFAULT_K
             ) -> None:
         try:
+            if not self.config_manager.checker_k(k):
+                sys.stderr(1)
             questions, name = self.config_manager.search_data(dataset_path)
             if not questions:
                 return
@@ -76,6 +80,8 @@ class RAGCli:
             self, query: str, k: int = DEFAULT_K
                ) -> None:
         try:
+            if not self.config_manager.checker_k(k):
+                sys.stderr(1)
             self.answer_service = AnswerService(self.llm, self.retrieval)
             self.answer_service.generate_answer(query, k)
         except ValueError:
@@ -118,6 +124,8 @@ class RAGCli:
             max_context_length: int
             ) -> None:
         try:
+            if not self.config_manager.checker_k(k):
+                sys.stderr(1)
             check = False
             data, _ = self.config_manager.load_search_results(
                 student_answer_path)

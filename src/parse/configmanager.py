@@ -8,6 +8,13 @@ from filetype_scanner.allowed_extensions import ALLOWED_EXTENSIONS
 
 
 class ConfigManager:
+    def checker_k(self, k: int) -> bool:
+        if k > 0:
+            return True
+        else:
+            print("[WARNING] You would need K > 0")
+            return False
+
     def checker(
             self,
             max_chunk_size: int,
@@ -18,7 +25,7 @@ class ConfigManager:
         if 0 < max_chunk_size <= 2000:
             pass
         else:
-            raise ValueError("[ERROR] You would need max_chunk_size 1-2000")
+            raise ValueError("[ERROR] You would need max_chunk_size 150-2000")
         try:
             config = Path(config_path)
             if config.exists():
