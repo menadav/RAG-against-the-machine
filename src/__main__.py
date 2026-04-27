@@ -8,6 +8,11 @@ from src.ragcli import RAGCli
 
 
 def main() -> None:
+    """CLI entry point.
+
+    Initializes the command-line interface using 'fire' to expose RAGCli
+    functionalities and handles keyboard interruptions gracefully.
+    """
     try:
         fire.Fire(RAGCli)
     except KeyboardInterrupt:

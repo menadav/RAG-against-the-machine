@@ -21,7 +21,11 @@ warnings.filterwarnings("ignore")
 
 
 class AnswerService:
+    """Handles the RAG generation pipeline
+    by constructing prompts and querying the LLM.
+    """
     def __init__(self, llm_model: str, retrieval: Retrieval) -> None:
+        """Initializes the LLM pipeline and retrieval system."""
         self.generator = pipeline(
             "text-generation",
             model=llm_model,
@@ -34,6 +38,16 @@ class AnswerService:
             self,
             questions: StudentSearchResults
             ) -> StudentSearchResultsAndAnswer:
+        """Generates answers for an entire batch of search results.
+
+        Args:
+            questions (StudentSearchResults):
+            Batch of queries with their retrieved sources.
+
+        Returns:
+            StudentSearchResultsAndAnswer:
+            The structured dataset containing generated answers.
+        """
         results = []
         for res in tqdm(questions.search_results,
                         desc="Generating answer dataset"):
@@ -59,6 +73,19 @@ class AnswerService:
             sources: Optional[List[MinimalSource]] = None,
             check: bool = True
             ) -> Union[str, StudentSearchResultsAndAnswer]:
+        """Generates a concise answer for a single query
+        based on provided context.
+
+        Args:
+            query (str): The user's question.
+            k (int): Number of sources to retrieve if check is True.
+            sources (Optional[List[MinimalSource]]): Pre-retrieved sources.
+            check (bool): Whether to perform retrieval or use provided sources.
+
+        Returns:
+            Union[str, StudentSearchResultsAndAnswer]:
+            The generated answer string or structured object.
+        """
         actual_sources: List[MinimalSource] = sources if sources is not None \
             else []
         if check:
@@ -101,6 +128,12 @@ class AnswerService:
         return final_prompt
 
     def _build_context(self, sources: List[MinimalSource]) -> str:
+        """Reads and concatenates content from the specified file sources.
+
+        Returns:
+            str: A formatted string containing the content
+            of all retrieved sources.
+        """
         context_parts = []
         for src in sources:
             try:
@@ -118,6 +151,11 @@ class AnswerService:
         return "\n\n".join(context_parts)
 
     def _create_prompt(self, query: str, context: str) -> str:
+        """Constructs the prompt template for the LLM using context and query.
+
+        Returns:
+            str: The final prompt string.
+        """
         return (
             "Context information is below.\n"
             "---------------------\n"
@@ -134,6 +172,11 @@ class AnswerService:
     def get_structured_response(
             self, query: str, answer: str, sources: List, k: int
             ) -> StudentSearchResultsAndAnswer:
+        """Wraps the answer and sources into a formal data schema.
+
+        Returns:
+            StudentSearchResultsAndAnswer: The formatted result object.
+        """
         return StudentSearchResultsAndAnswer(
             search_results=[
                 MinimalAnswer(

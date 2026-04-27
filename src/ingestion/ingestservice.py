@@ -13,6 +13,10 @@ class IngestionService:
                  retrieval: Retrieval,
                  config_manager: ConfigManager
                  ) -> None:
+        """
+        Orchestrates the data ingestion pipeline:
+        reading, chunking, and indexing.
+        """
         self.processor = processor
         self.retrieval = retrieval
         self.config_manager = config_manager
@@ -23,6 +27,17 @@ class IngestionService:
                      path_cp: str,
                      config_path: str
                      ) -> None:
+        """Executes the full ingestion pipeline.
+
+        Processes files, generates chunks, builds retrieval indices, and saves
+        the state to the configuration file.
+
+        Args:
+            max_chunk_size (int): Max characters per text chunk.
+            extensions (List[str]): List of file extensions to include.
+            path_cp (str): Root directory path for ingestion.
+            config_path (str): Path to save/update the ingestion state JSON.
+        """
         all_chunks_text = []
         all_sources = []
         for source, text in self._ingest_files(
@@ -42,6 +57,16 @@ class IngestionService:
                       extensions: List[str],
                       path_cp: str
                       ) -> Generator[Tuple[Any, str], None, None]:
+        """Iterates through files and yields processed text chunks.
+
+        Args:
+            max_chunk_size (int): Max characters per text chunk.
+            extensions (List[str]): List of file extensions to process.
+            path_cp (str): Path to the target repository.
+
+        Yields:
+            Tuple[Any, str]: Metadata source and the corresponding text chunk.
+        """
         self.processor.max_chunk_size = max_chunk_size
         path_base = Path(path_cp)
         files = [f for f in path_base.rglob("*")
@@ -58,6 +83,14 @@ class IngestionService:
             config_path: str,
             path_cp: str
             ) -> None:
+        """Saves the current ingestion configuration and timestamp to disk.
+
+        Args:
+            max_chunk_size (int): Size limit used during ingestion.
+            extensions (List[str]): Processed file extensions.
+            config_path (str): File path for saving the JSON state.
+            path_cp (str): Root path of the ingested repository.
+        """
         config_file = Path(config_path)
         config_file.parent.mkdir(parents=True, exist_ok=True)
         _, check_time = self.config_manager.get_repo_status(

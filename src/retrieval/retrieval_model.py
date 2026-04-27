@@ -15,6 +15,7 @@ logging.getLogger("bm25s").setLevel(logging.ERROR)
 
 
 class Retrieval:
+    """Handles BM25 and vector-based (ChromaDB) hybrid retrieval."""
     metadata: List[Dict[str, Any]] = []
     index_dir: Path
     metadata_path: Path
@@ -26,6 +27,7 @@ class Retrieval:
             metadata_path: str = "data/processed/chunks/chunk.json",
             chroma_path: str = "data/processed/chroma_db"
             ) -> None:
+        """Initializes the retrieval engine and ChromaDB client."""
         self.index_dir = Path(index_dir)
         self.metadata_path = Path(metadata_path)
         self.retrieval = None
@@ -44,6 +46,13 @@ class Retrieval:
             all_chunks_text: List[str],
             all_sources: List[Dict[str, Any]]
             ) -> None:
+        """Builds BM25 index and populates the ChromaDB collection.
+
+        Args:
+            all_chunks_text (List[str]): List of text segments to index.
+            all_sources (List[Dict[str, Any]]):
+            Metadata associated with each chunk.
+        """
         tokenized_corpus = bm25s.tokenize(
             all_chunks_text, stopwords="en", show_progress=False
             )
@@ -81,6 +90,7 @@ class Retrieval:
             )
 
     def load(self) -> None:
+        """Loads the BM25 index and metadata from disk."""
         if not self.index_dir.exists():
             raise ValueError("[ERROR] No index Found")
         self.retrieval = bm25s.BM25.load(self.index_dir, load_corpus=True)
@@ -91,6 +101,15 @@ class Retrieval:
                    query_tokens: str,
                    k: int
                    ) -> List[MinimalSource]:
+        """Performs hybrid retrieval (BM25 + Vector) and returns top K sources.
+
+        Args:
+            query_tokens (str): The search query text.
+            k (int): Number of results to retrieve.
+
+        Returns:
+            List[MinimalSource]: A deduplicated list of top retrieved sources.
+        """
         if self.retrieval is None:
             self.load()
         query_clean = "".join(
@@ -124,6 +143,14 @@ class Retrieval:
                       seen_set: Set[str],
                       meta: Dict[str, Any]
                       ) -> None:
+        """Adds a source to the results list if it is unique.
+
+        Args:
+            final_list (List[MinimalSource]):
+            Current list of retrieved results.
+            seen_set (Set[str]): Set of unique identifiers already processed.
+            meta (Dict[str, Any]): Metadata of the source to evaluate.
+        """
         full_path = meta['file_path']
         unique_key = f"{full_path}_{meta['first_character_index']}"
         if unique_key not in seen_set:

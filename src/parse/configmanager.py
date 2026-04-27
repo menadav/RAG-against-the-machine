@@ -8,12 +8,26 @@ from filetype_scanner.allowed_extensions import ALLOWED_EXTENSIONS
 
 
 class ConfigManager:
+    """Manages RAG configuration, data validation, and file persistence."""
     def checker_k(self, k: int) -> bool:
-        if k > 0:
+        """Validates that the number of results 'k' is positive.
+
+        Args:
+            k (int): Number of retrieval results.
+
+        Returns:
+            bool: True if k is invalid (<= 0), False otherwise.
+        """
+        try:
+            k = int(k)
+        except (ValueError, TypeError):
+            print("[WARNING] K must be a valid integer")
             return True
+        if k > 0:
+            return False
         else:
             print("[WARNING] You would need K > 0")
-            return False
+            return True
 
     def checker(
             self,
@@ -22,7 +36,19 @@ class ConfigManager:
             extensions: List[str],
             path_cp: str
             ) -> bool:
-        if 0 < max_chunk_size <= 2000:
+        """Checks if the current configuration matches the saved disk state.
+
+        Verifies chunk size, extensions, repository path,
+        and modification time.
+
+        Returns:
+            bool: True if the configuration is consistent and up to date.
+        """
+        try:
+            max_chunk_size = int(max_chunk_size)
+        except (ValueError, TypeError):
+            raise ValueError("[ERROR] max_chunk_size must be a valid integer")
+        if 150 <= max_chunk_size <= 2000:
             pass
         else:
             raise ValueError("[ERROR] You would need max_chunk_size 150-2000")
@@ -57,6 +83,11 @@ class ConfigManager:
             path_base: str,
             extension: list[str]
             ) -> Tuple[int, float]:
+        """Gets file count and the latest modification timestamp of the repo.
+
+        Returns:
+            Tuple[int, float]: (File count, latest modification timestamp).
+        """
         files = [f for f in Path(
             path_base
             ).rglob("*") if f.is_file() and f.suffix in extension]
@@ -66,6 +97,11 @@ class ConfigManager:
         return len(files), last_modified
 
     def check_extensions(self, extension: list[str]) -> bool:
+        """Validates that the provided extensions are allowed.
+
+        Returns:
+            bool: True if an extension is not permitted, False otherwise.
+        """
         if not extension:
             raise ValueError("[WARNING] You need any extensio\n")
         for x in extension:
@@ -77,6 +113,11 @@ class ConfigManager:
         return False
 
     def load_rag_data(self, path: str) -> RagDataset:
+        """Loads and validates the RAG dataset from a JSON file.
+
+        Returns:
+            RagDataset: Validated dataset object.
+        """
         path_base = Path(path)
         if not path_base.exists():
             raise ValueError(f"El archivo del dataset no existe: {path}")
@@ -94,6 +135,12 @@ class ConfigManager:
     def load_search_results(
             self, path: str
             ) -> Tuple[StudentSearchResults, str]:
+        """Loads and validates student search results from a JSON file.
+
+        Returns:
+            Tuple[StudentSearchResults, str]:
+            Validated search results and filename.
+        """
         path_base = Path(path)
         if not path_base.exists():
             raise ValueError("Path incorrect")
@@ -109,6 +156,12 @@ class ConfigManager:
             self,
             data_set_path: str
             ) -> Tuple[list[UnansweredQuestion], str]:
+        """Extracts and validates unanswered questions from the dataset.
+
+        Returns:
+            Tuple[list[UnansweredQuestion], str]:
+            List of questions and filename.
+        """
         path_base = Path(data_set_path)
         if not path_base.exists():
             raise ValueError("[WARNING] Path incorrect")
@@ -140,12 +193,16 @@ class ConfigManager:
             data: Union[StudentSearchResults | StudentSearchResultsAndAnswer],
             name: str
             ) -> str:
+        """
+        Normalizes paths, saves results as JSON, and returns the output path.
+
+        Returns:
+            str: Path to the saved output file.
+        """
         prefix = "data/raw/vllm-0.10.1/"
         for result in data.search_results:
             for source in result.retrieved_sources:
-                # Si ya tiene el prefijo, no lo toques
                 if not source.file_path.startswith(prefix):
-                    # Solo añadimos el prefijo si no está ya
                     source.file_path = f"{prefix}{source.file_path}"
         base_dir = Path(path)
         base_dir.mkdir(parents=True, exist_ok=True)
