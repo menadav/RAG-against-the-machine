@@ -52,11 +52,11 @@ class AnswerService:
         for res in tqdm(questions.search_results,
                         desc="Generating answer dataset"):
             res_data = self.generate_answer(
-                res.question, 0, res.retrieved_sources, False)
+                res.question_str, 0, res.retrieved_sources, False)
             clean_answer: str = str(res_data)
             answer_obj = MinimalAnswer(
                 question_id=res.question_id,
-                question=res.question,
+                question_str=res.question_str,
                 retrieved_sources=res.retrieved_sources,
                 answer=clean_answer
             )
@@ -181,7 +181,7 @@ class AnswerService:
             search_results=[
                 MinimalAnswer(
                     question_id=str(uuid.uuid4()),
-                    question=query,
+                    question_str=query,
                     retrieved_sources=sources,
                     answer=answer
                 )

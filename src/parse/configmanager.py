@@ -53,6 +53,9 @@ class ConfigManager:
         else:
             raise ValueError("[ERROR] You would need max_chunk_size 150-2000")
         try:
+            vllm = Path(path_cp)
+            if not vllm.exists():
+                raise ValueError(f"[ERROR] Path not exist {path_cp}")
             config = Path(config_path)
             if config.exists():
                 with open(config_path, 'r') as f:

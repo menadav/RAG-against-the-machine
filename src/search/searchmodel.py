@@ -34,7 +34,7 @@ class SearchService:
             sources = self.retrieval.find_top_k(q.question, k=k)
             all_results.append(MinimalSearchResults(
                 question_id=q.question_id,
-                question=q.question,
+                question_str=q.question,
                 retrieved_sources=sources
             ))
         return all_results

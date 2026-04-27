@@ -66,7 +66,9 @@ class RAGCli:
             data_to_print = [r.model_dump() for r in results]
             print(json.dumps(data_to_print, indent=4, ensure_ascii=False))
         except ValueError:
-            print("[WARNING] Incorrect Value", file=sys.stderr)
+            print(
+                    "[INFO] Please verify if the index is properly initialized"
+                    " or if the dataset is available.", file=sys.stderr)
             sys.exit(1)
 
     def search_dataset(
@@ -83,7 +85,7 @@ class RAGCli:
             k (int): Number of sources per result.
         """
         try:
-            if not self.config_manager.checker_k(k):
+            if self.config_manager.checker_k(k):
                 sys.exit(1)
             questions, name = self.config_manager.search_data(dataset_path)
             if not questions:
@@ -100,7 +102,9 @@ class RAGCli:
             print(e)
             sys.exit(1)
         except TypeError:
-            print("[WARNING] Incorrect Flag", file=sys.stderr)
+            print(
+                    "[INFO] Please verify if the index is properly initialized"
+                    " or if the dataset is available.", file=sys.stderr)
             sys.exit(1)
 
     def answer(
@@ -129,7 +133,9 @@ class RAGCli:
                 dict_data = result_object
             print(json.dumps(dict_data, indent=4, ensure_ascii=False))
         except ValueError:
-            print("[WARNING] Incorrect Flag", file=sys.stderr)
+            print(
+                    "[INFO] Please verify if the index is properly initialized"
+                    " or if the dataset is available.", file=sys.stderr)
             sys.exit(1)
 
     def answer_dataset(
@@ -164,7 +170,9 @@ class RAGCli:
             print(e)
             sys.exit(1)
         except TypeError:
-            print("[WARNING] Incorrect Flag", file=sys.stderr)
+            print(
+                    "[INFO] Please verify if the index is properly initialized"
+                    " or if the dataset is available.", file=sys.stderr)
             sys.exit(1)
 
     def evaluate(
@@ -196,12 +204,8 @@ class RAGCli:
             print("========================================")
             for i, k_val in enumerate(k_levels):
                 print(f"Recall@{k_val}: {fi[i]:.2f}")
-        except ValueError as e:
-            if e:
-                print(
-                    f"{e}\n"
-                    f"\nStudent data is valid: {check}", file=sys.stderr
-                    )
-            else:
-                print("[ERROR] Incorrect Value", file=sys.stderr)
+        except ValueError:
+            print(
+                    "[INFO] Please verify if the index is properly initialized"
+                    " or if the dataset is available.", file=sys.stderr)
             sys.exit(1)

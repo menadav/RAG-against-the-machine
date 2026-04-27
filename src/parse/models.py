@@ -2,7 +2,7 @@ import sys
 import uuid
 from typing import List, Union, Optional
 try:
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, AliasChoices
 except ImportError:
     print("[ERROR] Install pydantic", file=sys.stderr)
     sys.exit(1)
@@ -77,7 +77,11 @@ class MinimalSearchResults(BaseModel):
         List of chunks retrieved for the query.
     """
     question_id: str
-    question_str: Optional[str] = Field(None, alias="question")
+    question_str: Optional[str] = Field(
+        None, validation_alias=AliasChoices(
+            "question", "question_str"
+            )
+            )
     retrieved_sources: List[MinimalSource]
 
 
