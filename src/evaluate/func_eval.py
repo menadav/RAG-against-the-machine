@@ -1,11 +1,11 @@
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Tuple
 from copy import copy
 
 
 def calculate_recall_at_k(
     student_results: Any,
     ground_truth: Any,
-) -> list[float]:
+) -> Tuple[List[float], List[int]]:
     """Calculates Recall@K metrics with a scaled context window.
 
     Evaluates the retrieval performance by measuring the overlap between
@@ -21,7 +21,7 @@ def calculate_recall_at_k(
         each value in k_values.
     """
     k_values = [1, 3, 5, 10]
-    max_context = 2000 * 1.5
+    max_context: float = 2000 * 1.5
     gt_map: Dict[str, Any] = {q.question_id: getattr(q, 'sources', [])
                               for q in ground_truth.rag_questions}
     recalls_per_k: Dict[int, List[float]] = {k: [] for k in k_values}
@@ -35,14 +35,14 @@ def calculate_recall_at_k(
         for k_val in k_values:
             found_for_this_k = 0
             top_k_candidates = retrieved[:k_val]
-            current_context_len = 0
+            current_context_len: float = 0.0
             valid_top_k = []
             for src in top_k_candidates:
                 if current_context_len >= max_context:
                     break
-                src_len = abs(
+                src_len: float = float(abs(
                     src.last_character_index - src.first_character_index
-                    )
+                    ))
                 if src.file_path in relevant_files:
                     if current_context_len + src_len <= max_context:
                         valid_top_k.append(src)
@@ -50,7 +50,7 @@ def calculate_recall_at_k(
                     else:
                         espacio_restante = max_context - current_context_len
                         src_truncado = copy(src)
-                        src_truncado.last_character_index = (
+                        src_truncado.last_character_index = int(
                             src.first_character_index + espacio_restante
                             )
                         valid_top_k.append(src_truncado)
@@ -62,16 +62,16 @@ def calculate_recall_at_k(
                         continue
                     if current_context_len >= max_context:
                         break
-                    src_len = abs(
+                    src_len = float(abs(
                         src.last_character_index - src.first_character_index
-                        )
+                        ))
                     espacio_restante = max_context - current_context_len
                     if src_len <= espacio_restante:
                         valid_top_k.append(src)
                         current_context_len += src_len
                     else:
                         src_truncado = copy(src)
-                        src_truncado.last_character_index = (
+                        src_truncado.last_character_index = int(
                             src.first_character_index + espacio_restante
                             )
                         valid_top_k.append(src_truncado)
@@ -104,8 +104,9 @@ def calculate_recall_at_k(
                     found_for_this_k += 1
             puntuacion = found_for_this_k / len(real_sources)
             recalls_per_k[k_val].append(puntuacion)
-    return ([
+    final_scores = [
         sum(recalls_per_k[k]) / len(recalls_per_k[k])
         if recalls_per_k[k] else 0.0
         for k in k_values
-    ], k_values)
+    ]
+    return (final_scores, k_values)

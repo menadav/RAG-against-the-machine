@@ -89,7 +89,7 @@ class AnswerService:
         actual_sources: List[MinimalSource] = sources if sources is not None \
             else []
         if check:
-            query_str = " ".join(query)
+            query_str = " ".join(query) if isinstance(query, list) else query
             raw_list = self.retrieval.find_top_k(query_str, k)
             actual_sources = [
                 MinimalSource(

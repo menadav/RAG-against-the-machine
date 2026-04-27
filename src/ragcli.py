@@ -1,4 +1,5 @@
 import sys
+import json
 from typing import Optional
 from src.constant import EXTENSIONS, PATH_CP, CONFIG_PATH, \
     DEFAULT_K, DEFAULT_CHUNK, LLM
@@ -61,8 +62,10 @@ class RAGCli:
         try:
             if self.config_manager.checker_k(k):
                 sys.exit(1)
-            self.retrieval.find_top_k(question, k)
-        except ValueError as e:
+            results = self.retrieval.find_top_k(question, k)
+            data_to_print = [r.model_dump() for r in results]
+            print(json.dumps(data_to_print, indent=4, ensure_ascii=False))
+        except ValueError:
             print("[WARNING] Incorrect Value", file=sys.stderr)
             sys.exit(1)
 
@@ -110,10 +113,21 @@ class RAGCli:
             k (int): Number of context sources to retrieve.
         """
         try:
-            if not self.config_manager.checker_k(k):
+            if self.config_manager.checker_k(k):
                 sys.exit(1)
             self.answer_service = AnswerService(self.llm, self.retrieval)
-            self.answer_service.generate_answer(query, k)
+            result_object = self.answer_service.generate_answer(
+                    query,
+                    k,
+                    None,
+                    True
+                    )
+            print(result_object)
+            if hasattr(result_object, "model_dump"):
+                dict_data = result_object.model_dump()
+            else:
+                dict_data = result_object
+            print(json.dumps(dict_data, indent=4, ensure_ascii=False))
         except ValueError:
             print("[WARNING] Incorrect Flag", file=sys.stderr)
             sys.exit(1)
