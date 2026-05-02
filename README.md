@@ -69,10 +69,3 @@ The system implements a Hybrid Retrieval approach that combines lexical and sema
 - Efficiency: The system is optimized for performance-constrained hardware by using lightweight embedding models and efficient indexing.
 
 - Architecture: The code follows a strictly modular design, ensuring clean, scalable, and testable components.
-
-## Resources
-Educational Content: I followed tutorials by to grasp the core concepts of vector databases and retrieval-augmented generation. 
-- *https://www.youtube.com/@jokioki*
-
-- Documentation and Libraries: Official documentation for bm25s, ChromaDB, and SentenceTransformers was essential for the implementation.
-- II utilized AI-assisted tools to clarify complex debugging issues and to brainstorm architectural approaches, which significantly accelerated my understanding of Transformer-based models and their application in RAG pipelines.
