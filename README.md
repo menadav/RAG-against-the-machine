@@ -1,5 +1,7 @@
 # RAG-against-the-machine
 
+![RAG Architecture Diagram](assets/architec.jpg)
+
 ## Description
 This project consists of developing a Retrieval-Augmented Generation (RAG) system designed to analyze and answer questions based on the vLLM code repository. The primary goal is to build a tool that combines efficient information retrieval with natural language generation to provide accurate, evidence-based answers derived from the project's documentation and source code.
 
